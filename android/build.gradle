@@ -73,7 +73,8 @@ dependencies {
 
     //UT
     implementation 'com.taobao.android:utdid4all:1.1.5.3_proguard@jar'
-    implementation 'com.alibaba.mtl:app-monitor-sdk:2.5.1.3_for_bc_proguard@jar'
+    implementation 'com.alibaba.mtl:app-monitor-sdk:2.6.4_for_bc@jar'
+
 
     //联盟SDK
     implementation 'com.alimama.tunion.sdk:tuniontradesdk:0.3.2@aar'
