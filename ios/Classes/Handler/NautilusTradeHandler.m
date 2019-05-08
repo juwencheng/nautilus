@@ -40,6 +40,16 @@
     [self OpenByPage:page call:call result:result];
 }
 
+- (void)openMyCart:(FlutterMethodCall *)call result:(FlutterResult)result {
+    id <AlibcTradePage> page = [AlibcTradePageFactory myCartsPage];
+    [self OpenByPage:page call:call result:result];
+}
+
+- (void)openOrderList:(FlutterMethodCall *)call result:(FlutterResult)result {
+    id <AlibcTradePage> page = [AlibcTradePageFactory myOrdersPage:0 isAllOrder:YES];
+    [self OpenByPage:page call:call result:result];
+}
+
 - (void)OpenByPage:(id <AlibcTradePage>)page call:(FlutterMethodCall *)call result:(FlutterResult)result {
     UIViewController *rootViewController =
             [UIApplication sharedApplication].delegate.window.rootViewController;

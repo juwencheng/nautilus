@@ -9,9 +9,7 @@ import com.alibaba.baichuan.android.trade.callback.AlibcTradeCallback
 import com.alibaba.baichuan.android.trade.callback.AlibcTradeInitCallback
 import com.alibaba.baichuan.android.trade.model.AlibcShowParams
 import com.alibaba.baichuan.android.trade.model.OpenType
-import com.alibaba.baichuan.android.trade.page.AlibcBasePage
-import com.alibaba.baichuan.android.trade.page.AlibcDetailPage
-import com.alibaba.baichuan.android.trade.page.AlibcPage
+import com.alibaba.baichuan.android.trade.page.*
 import com.alibaba.baichuan.trade.biz.AlibcTradeBiz
 import com.alibaba.baichuan.trade.biz.applink.adapter.AlibcFailModeType
 import com.alibaba.baichuan.trade.biz.context.AlibcResultType
@@ -79,6 +77,12 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
     fun openUrl(call: MethodCall, result: MethodChannel.Result){
         val pageUrl = call.argument<String?>("pageUrl")
         openByPage(AlibcPage(pageUrl), call, result)
+    }
+    fun openMyCart(call: MethodCall, result: MethodChannel.Result) {
+        openByPage(AlibcMyOrdersPage(0,true), call, result)
+    }
+    fun openOrderList(call: MethodCall, result: MethodChannel.Result) {
+        openByPage(AlibcMyCartsPage(), call, result)
     }
 
     private fun openByPage(page: AlibcBasePage, call: MethodCall, result: MethodChannel.Result) {

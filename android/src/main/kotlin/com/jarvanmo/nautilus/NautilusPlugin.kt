@@ -28,6 +28,8 @@ class NautilusPlugin(registrar: Registrar) : MethodCallHandler {
             "logout" == call.method -> nautilusLoginService.handleLogout(result)
             "initTradeAsync" == call.method -> tradeHandler.initTradeAsync(call,result)
             "openItemDetail" == call.method -> tradeHandler.openItemDetail(call,result)
+            "openMyCart" == call.method -> tradeHandler.openMyCart(call,result)
+            "openOrderList" == call.method -> tradeHandler.openOrderList(call,result)
             "openUrl" == call.method -> tradeHandler.openUrl(call, result)
             "destroy" == call.method -> tradeHandler.destroy()
             else -> result.notImplemented()

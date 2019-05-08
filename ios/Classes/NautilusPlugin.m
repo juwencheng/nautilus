@@ -41,7 +41,11 @@ NautilusTradeHandler *_tradeHandler;
         [_tradeHandler openItemDetail:call result:result];
     } else if([@"openUrl" isEqualToString:call.method]){
         [_tradeHandler openUrl:call result:result];
-    }else{
+    } else if([@"openMyCart" isEqualToString:call.method]){
+        [_tradeHandler openMyCart:call result:result];
+    } else if([@"openOrderList" isEqualToString:call.method]){
+        [_tradeHandler openOrderList:call result:result];
+    } else{
         result(FlutterMethodNotImplemented);
     }
 }
