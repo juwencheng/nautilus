@@ -79,10 +79,10 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
         openByPage(AlibcPage(pageUrl), call, result)
     }
     fun openMyCart(call: MethodCall, result: MethodChannel.Result) {
-        openByPage(AlibcMyOrdersPage(0,true), call, result)
+        openByPage(AlibcMyCartsPage(), call, result)
     }
     fun openOrderList(call: MethodCall, result: MethodChannel.Result) {
-        openByPage(AlibcMyCartsPage(), call, result)
+        openByPage(AlibcMyOrdersPage(0,true), call, result)
     }
 
     private fun openByPage(page: AlibcBasePage, call: MethodCall, result: MethodChannel.Result) {
