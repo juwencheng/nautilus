@@ -205,3 +205,53 @@ Future<TradeResult> openUrl(
       errorCode: result[_keyErrorCode],
       errorMessage: result[_keyErrorMessage]);
 }
+
+Future<Map> openAuthUrl(
+    {@required String pageUrl,
+    String backUrl = "",
+    Map<String, String> extParams,
+    TaoKeParams taoKeParams,
+    bool needPush = false,
+    String schemeType = "tmall_scheme",
+    OpenType openType = OpenType.AUTO,
+    OpenNativeFailedMode openNativeFailedMode =
+        OpenNativeFailedMode.JUMP_H5}) async {
+  assert(needPush != null || openType != null || openNativeFailedMode != null);
+
+  Map taoKe;
+  if (taoKeParams != null) {
+    taoKe = {
+      "taoKeParamsPid": taoKeParams.pid ?? "",
+      "taoKeParamsSubPid": taoKeParams.subPid ?? "",
+      "taoKeParamsUnionId": taoKeParams.unionId ?? "",
+      "taoKeParamsAdzoneId": taoKeParams.adzoneId ?? "",
+      "taoKeParamsExtParams": taoKeParams.extParams ?? {}
+    };
+  }
+
+  Map des = {
+    "pageUrl": pageUrl,
+    "backUrl": backUrl == null ? "" : backUrl,
+    "extParams": extParams,
+    "needPush": needPush,
+    "openType": openType.index,
+    "schemeType": schemeType,
+    "taoKeParams": taoKe,
+    "openNativeFailedMode": openNativeFailedMode.index
+  };
+
+  Map result = await _channel.invokeMethod("openAuthUrl", des);
+  return result;
+//  TradeResultType tradeResultType = result["tradeResultType"] == 0
+//      ? TradeResultType.PaySuccess
+//      : TradeResultType.AddCard;
+//  return TradeResult(
+//      openResultCode: result["openResultCode"],
+//      platform: result[_keyPlatform],
+//      isSuccessful: result["result"],
+//      tradeResultType: tradeResultType,
+//      paySuccessOrders: result["paySuccessOrders"],
+//      payFailedOrders: result["payFailedOrders"],
+//      errorCode: result[_keyErrorCode],
+//      errorMessage: result[_keyErrorMessage]);
+}

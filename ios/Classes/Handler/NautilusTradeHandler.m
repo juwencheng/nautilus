@@ -6,6 +6,13 @@
 #import <AlibcTradeSDK/AlibcTradeSDK.h>
 #import "NautilusStringUtil.h"
 #import "NautilusConstants.h"
+#import "AuthWebVC.h"
+
+@interface NautilusTradeHandler()<UIWebViewDelegate>
+@property (nonatomic, copy) FlutterResult result;
+@property (nonatomic, strong) AuthWebVC *webVC;
+
+@end
 
 @implementation NautilusTradeHandler
 
@@ -38,6 +45,103 @@
     NSString *pageUrl = call.arguments[@"pageUrl"];
     id <AlibcTradePage> page = [AlibcTradePageFactory page:pageUrl];
     [self OpenByPage:page call:call result:result];
+}
+
+- (void)openAuthUrl:(FlutterMethodCall *)call result:(FlutterResult)result {
+    self.result = result;
+    NSString *pageUrl = call.arguments[@"pageUrl"];
+    id <AlibcTradePage> page = [AlibcTradePageFactory page:pageUrl];
+    UIViewController *rootViewController =
+    [UIApplication sharedApplication].delegate.window.rootViewController;
+    
+    NSString *backUrl = call.arguments[@"backUrl"];
+    BOOL needPush = [call.arguments[@"needPush"] boolValue];
+    NSNumber *type = call.arguments[@"openType"];
+    NSNumber *nativeFailedMode = call.arguments[@"openNativeFailedMode"];
+    
+    AlibcTradeShowParams *showParam = [[AlibcTradeShowParams alloc] init];
+    showParam.openType = [self intToAlibcOpenType:[type intValue]];
+        //    showParam.backUrl=@"tbopen23082328:https://h5.m.taobao.com";
+    showParam.backUrl = backUrl;
+    showParam.isNeedPush = needPush;
+    showParam.nativeFailMode = [self intToNativeFailMode:[nativeFailedMode intValue]];
+    
+        //    showParam.linkKey = @"tmall_scheme";//暂时拉起天猫
+    showParam.linkKey = call.arguments[@"schemeType"];
+        //    showParam.linkKey = @"dingding_scheme";//暂时拉起天猫
+    
+    
+    __block NSInteger openResultCode = -1;
+    
+    AlibcTradeProcessSuccessCallback _onTradeSuccess = ^(AlibcTradeResult *tradeProcessResult) {
+        
+        if (tradeProcessResult.result == AlibcTradeResultTypePaySuccess) {
+            result(@{
+                     @"openResultCode": @(openResultCode),
+                     nautilusKeyPlatform: nautilusKeyIOS,
+                     nautilusKeyResult: @YES,
+                     @"tradeResultType": @0,
+                     @"paySuccessOrders": [tradeProcessResult payResult].paySuccessOrders,
+                     @"payFailedOrders": [tradeProcessResult payResult].payFailedOrders
+                     });
+        } else if (tradeProcessResult.result == AlibcTradeResultTypeAddCard) {
+            
+            result(@{
+                     @"openResultCode": @(openResultCode),
+                     nautilusKeyPlatform: nautilusKeyIOS,
+                     nautilusKeyResult: @YES,
+                     @"tradeResultType": @1,
+                     });
+        } else{
+            result(@{
+                     @"openResultCode": @(openResultCode),
+                     nautilusKeyPlatform: nautilusKeyIOS,
+                     nautilusKeyResult: @YES,
+                     @"tradeResultType": @-1,
+                     });
+        }
+        
+    };
+    
+    
+    AlibcTradeProcessFailedCallback _onTradeFailure = ^(NSError *error) {
+            //        退出交易流程
+        
+        NSDictionary *infor = [error userInfo];
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:infor options:NSJSONWritingPrettyPrinted error:&error];
+        
+        NSString *jsonString = @"";
+        
+        if (jsonData) {
+            jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            
+        }
+        
+        result(@{
+                 @"openResultCode": @(openResultCode),
+                 nautilusKeyPlatform: nautilusKeyIOS,
+                 nautilusKeyResult: @NO,
+                 nautilusKeyErrorCode: @(error.code),
+                 nautilusKeyErrorMessage: jsonString,
+                 });
+        
+    };
+    
+    AlibcTradeTaokeParams *taoKeParams = nil;
+    taoKeParams = [self buildTaoKeParam:call];
+    
+    NSDictionary *extParams = call.arguments[@"extParams"];
+    if ([extParams isKindOfClass:[NSNull class]]) {
+        extParams = nil;
+    }
+    self.webVC = [[AuthWebVC alloc] initWithUrlString:pageUrl];
+    self.webVC.result = result;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:self.webVC webView:self.webVC.webView page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+        if (openResultCode == 1) {
+            [rootViewController presentViewController:[[UINavigationController alloc] initWithRootViewController:self.webVC] animated:YES completion:nil];
+        }
+    });
 }
 
 - (void)openMyCart:(FlutterMethodCall *)call result:(FlutterResult)result {
@@ -200,4 +304,38 @@
     return openType;
 
 }
+
+//- (void)userContentController:(nonnull WKUserContentController *)userContentController didReceiveScriptMessage:(nonnull WKScriptMessage *)message {
+//    if ([message.name isEqualToString:@"pushuo"]) {
+//        if ([message.body isKindOfClass:[NSDictionary class]]) {
+//            NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:message.body];
+//            NSString* method = dic[@"method"];
+//            __weak typeof(self) weakSelf = self;
+//            if ([method isEqualToString:@"save_relation"] || [method isEqualToString:@"save_special"]) {
+//                if (dic && ([dic.allKeys containsObject:@"special_id"] || [dic.allKeys containsObject:@"relation_id"])) {
+//                    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:dic];
+//                    result[@"result"] = @1;
+//                    if (weakSelf.result) {
+//                        weakSelf.result(result);
+//                    }
+//                }else {
+//                    if (weakSelf.result) {
+//                        weakSelf.result(@{@"result": @0});
+//                    }
+//                }
+//
+//            }else {
+//                if (weakSelf.result) {
+//                    weakSelf.result(@{@"result": @0});
+//                }
+//            }
+//            UIViewController *rootViewController =
+//            [UIApplication sharedApplication].delegate.window.rootViewController;
+//            [rootViewController dismissViewControllerAnimated:YES completion:nil];
+//        }
+//
+//    }
+//}
+
+
 @end

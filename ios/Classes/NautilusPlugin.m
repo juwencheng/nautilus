@@ -41,6 +41,8 @@ NautilusTradeHandler *_tradeHandler;
         [_tradeHandler openItemDetail:call result:result];
     } else if([@"openUrl" isEqualToString:call.method]){
         [_tradeHandler openUrl:call result:result];
+    } else if ([@"openAuthUrl" isEqualToString:call.method]) {
+        [_tradeHandler openAuthUrl:call result:result];
     } else if([@"openMyCart" isEqualToString:call.method]){
         [_tradeHandler openMyCart:call result:result];
     } else if([@"openOrderList" isEqualToString:call.method]){
