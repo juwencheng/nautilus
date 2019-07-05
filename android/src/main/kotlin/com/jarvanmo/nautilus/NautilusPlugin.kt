@@ -31,6 +31,7 @@ class NautilusPlugin(registrar: Registrar) : MethodCallHandler {
             "openMyCart" == call.method -> tradeHandler.openMyCart(call,result)
             "openOrderList" == call.method -> tradeHandler.openOrderList(call,result)
             "openUrl" == call.method -> tradeHandler.openUrl(call, result)
+            "openAuthUrl" == call.method -> tradeHandler.openAuthUrl(call, result)
             "destroy" == call.method -> tradeHandler.destroy()
             else -> result.notImplemented()
         }
