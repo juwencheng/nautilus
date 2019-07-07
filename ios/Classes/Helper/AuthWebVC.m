@@ -70,74 +70,29 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
                                                            cachePolicy:NSURLRequestUseProtocolCachePolicy
                                                        timeoutInterval:60.0];
-    
+
     [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    
+
     [request setHTTPMethod:@"POST"];
     NSDictionary *mapData = @{@"host": @"pushuo", @"version": @"1.1", @"level": @"1", @"short_message": @"debug",@"full_message": uploadUrl};
     NSData *postData = [NSJSONSerialization dataWithJSONObject:mapData options:0 error:&error];
     [request setHTTPBody:postData];
-    
-    
+
+
     NSURLSessionDataTask *postDataTask = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
     }];
-    
+
     [postDataTask resume];
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString *uploadUrl = request.URL.absoluteString;
-    [self uploadRequestLog:uploadUrl];
     if ([uploadUrl hasPrefix:@"http://app.pslife.com.cn/api/tbk/specialAuthv1"]) {
         if (self.result) {
             self.result(@{@"result": @1, @"data": uploadUrl});
         }
         [self dismissVC];
-
-//        NSURLSession *session = [NSURLSession sharedSession];
-//        NSURL *url = [NSURL URLWithString:uploadUrl];
-//        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
-//                                                               cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-//                                                           timeoutInterval:60.0];
-//        [request addValue:@"application/json" forHTTPHeaderField:@"Accept"];
-//
-//        [request setHTTPMethod:@"GET"];
-//        NSURLSessionDataTask *postDataTask = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-//            if (error == nil) {
-//                NSDictionary *root = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-//                if ([root[@"code"] isEqualToString:@"1"]) {
-//                    dispatch_async(dispatch_get_main_queue(), ^{
-//                        if (self.result) {
-//                            self.result(@{@"result": @0, @"message": root[@"msg"]});
-//                        }
-//                        [self dismissVC];
-//                    });
-//                }else {
-//                    NSDictionary *json = root[@"data"];
-//
-//                    NSDictionary *result = @{
-//                                             @"result": @1,
-//                                             @"special_id": [NSString stringWithFormat:@"%@", json[@"specialId"]],
-//                                             @"user_id": [NSString stringWithFormat: @"%@", json[@"userId"]]
-//                                             };
-//                    dispatch_async(dispatch_get_main_queue(), ^{
-//                        if (self.result) {
-//                            self.result(result);
-//                        }
-//                        [self dismissVC];
-//                    });
-//                }
-//            }else {
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    if (self.result) {
-//                        self.result(@{@"result": @0, @"message": error.localizedDescription});
-//                    }
-//                    [self dismissVC];
-//                });
-//            }
-//        }];
-//        [postDataTask resume];
         return NO;
     } else if ([request.URL.absoluteString hasPrefix:@"pushuo"]) {
         NSString *queryString = [request.URL.absoluteString stringByReplacingOccurrencesOfString:@"pushuo://" withString:@""];
