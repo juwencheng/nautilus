@@ -72,7 +72,7 @@ dependencies {
     implementation 'com.alibaba.sdk.android:alibc_link_partner:1.1.0.6'
 
     //UT
-    implementation 'com.taobao.android:utdid4all:1.1.5.3_proguard@jar'
+    implementation 'com.taobao.android:utdid4all:1.1.5@jar'
     implementation 'com.alibaba.mtl:app-monitor-sdk:2.6.4_for_bc@jar'
 
 

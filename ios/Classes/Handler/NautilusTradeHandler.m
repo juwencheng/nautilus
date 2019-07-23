@@ -17,22 +17,23 @@
 @implementation NautilusTradeHandler
 
 - (void)initTradeAsync:(FlutterMethodCall *)call result:(FlutterResult)result {
-    BOOL debuggable = [call.arguments[@"debuggable"] boolValue];
-
-    NSString *version = call.arguments[@"version"];
-
-    [[AlibcTradeSDK sharedInstance] setDebugLogOpen:debuggable];//开发阶段打开日志开关，方便排查错误信息
-    if (![NautilusStringUtil isBlank:version]) {
-        [[AlibcTradeSDK sharedInstance] setIsvVersion:version];
-    }
-
-
-    [[AlibcTradeSDK sharedInstance] asyncInitWithSuccess:^{
-        result(@{nautilusKeyPlatform: nautilusKeyIOS, nautilusKeyResult: @YES});
-    }                                            failure:^(NSError *error) {
-        result(@{nautilusKeyPlatform: nautilusKeyIOS, nautilusKeyResult: @NO, nautilusKeyErrorCode: @(error.code), nautilusKeyErrorMessage: error.description});
-    }];
-
+    dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL debuggable = [call.arguments[@"debuggable"] boolValue];
+        
+        NSString *version = call.arguments[@"version"];
+        
+        [[AlibcTradeSDK sharedInstance] setDebugLogOpen:debuggable];//开发阶段打开日志开关，方便排查错误信息
+        if (![NautilusStringUtil isBlank:version]) {
+            [[AlibcTradeSDK sharedInstance] setIsvVersion:version];
+        }
+        
+        
+        [[AlibcTradeSDK sharedInstance] asyncInitWithSuccess:^{
+            result(@{nautilusKeyPlatform: nautilusKeyIOS, nautilusKeyResult: @YES});
+        }                                            failure:^(NSError *error) {
+            result(@{nautilusKeyPlatform: nautilusKeyIOS, nautilusKeyResult: @NO, nautilusKeyErrorCode: @(error.code), nautilusKeyErrorMessage: error.description});
+        }];
+    });
 }
 
 - (void)openItemDetail:(FlutterMethodCall *)call result:(FlutterResult)result {

@@ -94,6 +94,12 @@
         }
         [self dismissVC];
         return NO;
+    }else if ([uploadUrl hasPrefix:@"http://app.pslife.com.cn/api/tbk/relationAuthv1"]) {
+        if (self.result) {
+            self.result(@{@"result": @1, @"data": uploadUrl});
+        }
+        [self dismissVC];
+        return NO;
     } else if ([request.URL.absoluteString hasPrefix:@"pushuo"]) {
         NSString *queryString = [request.URL.absoluteString stringByReplacingOccurrencesOfString:@"pushuo://" withString:@""];
         NSArray *components = [queryString componentsSeparatedByString:@"#"];
