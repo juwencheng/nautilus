@@ -23,6 +23,7 @@ typedef NS_ENUM(NSInteger, LinkPartnerErrorType)
     LINKPARTNER_ERROR_DOWNLOAD_URL_NIL    = 11,//下载页地址为空，未配置下载页地址
     LINKPARTNER_ERROR_ROUTERULE_NIL       = 12,//插件路由规则为nil
 };
+//__attribute__((deprecated("ALPError已过期, 不再使用")))
 
 @interface ALPError : NSObject
 

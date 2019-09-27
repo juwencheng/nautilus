@@ -18,8 +18,7 @@
 
 + (id)executeInstanceMethod:(NSString *)methodName instance:(id)instance params:(NSArray *)params;
 
-+ (id)executeClassMethod:(NSString *)methodName clazz:(Class)clazz;
-
 + (id)executeInstanceMethod:(NSString *)methodName instanceAndargs:(id)instance,...;
+
 
 @end

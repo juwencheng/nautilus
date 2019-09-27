@@ -3,11 +3,11 @@
  *
  * 阿里百川电商
  * 项目名称：阿里巴巴电商 AlibcTradeBiz 
- * 发布时间：3.1.1.204
- * 发布时间：2017-09-04
- * 开发团队：阿里巴巴百川商业化团队
+ * 版本号：4.0.0.2
+ * 发布时间：2019-09-15
+ * 开发团队：阿里巴巴商家服务引擎团队
  * 阿里巴巴电商SDK答疑群号：1488705339  2071154343(阿里旺旺)
- * Copyright (c) 2016-2019 阿里巴巴-移动事业群-百川. All rights reserved.
+ * Copyright (c) 2016-2020 阿里巴巴-淘宝-百川. All rights reserved.
  */
 
 #import <Foundation/Foundation.h>
@@ -38,5 +38,8 @@
 //webview被关闭
 #define ALIBCBIZWEBVIEWCLOSE @"ALI.BC.Biz.WebviewClose"
 //-(void)alibcWebviewClose:(ALiURLBusContext*)context
+
+//url加载事件
+#define ALIBCBIZWEBVIEWLOADURL @"ALI.BC.Biz.WebviewLoadWithUrl"
 
 #endif

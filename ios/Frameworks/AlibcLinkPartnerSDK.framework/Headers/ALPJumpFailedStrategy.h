@@ -8,8 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger, ALPJumpFailedMode)
-{
+typedef NS_ENUM(NSInteger, ALPJumpFailedMode) {
     ALPJumpFailedModeOpenH5           = 0,//降级到h5（默认）
     ALPJumpFailedModeOpenDownloadPage = 1,//跳转到下载页
     ALPJumpFailedModeOpenBrowser      = 2,//跳转到浏览器
@@ -30,7 +29,7 @@ typedef NS_ENUM(NSInteger, ALPJumpFailedMode)
 @property (nonatomic, assign) ALPJumpFailedMode failedMode;
 
 /**
- *  跳转失败H5页面打开时，自定义webview
+ *  跳转失败H5页面打开时，自定义webview，直接loadRequest:在该webview上显示
  */
 @property (nonatomic, strong) UIWebView *webview;
 

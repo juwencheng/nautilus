@@ -3,37 +3,23 @@
  *
  * 阿里百川电商
  * 项目名称：阿里巴巴电商 AlibcTradeBiz 
- * 发布时间：3.1.1.204
- * 发布时间：2017-09-04
- * 开发团队：阿里巴巴百川商业化团队
+ * 版本号：4.0.0.2
+ * 发布时间：2019-09-15
+ * 开发团队：阿里巴巴商家服务引擎团队
  * 阿里巴巴电商SDK答疑群号：1488705339  2071154343(阿里旺旺)
- * Copyright (c) 2016-2019 阿里巴巴-移动事业群-百川. All rights reserved.
+ * Copyright (c) 2016-2020 阿里巴巴-淘宝-百川. All rights reserved.
  */
 
 #import <Foundation/Foundation.h>
+#import "AlibcURLBusNativeContext.h"
+
+#ifndef ALiApplinkBridge_h
+#define ALiApplinkBridge_h
 
 #ifndef AlibcNativeFailMode_Enum
 #define AlibcNativeFailMode_Enum
 
-/**
- 拉起手淘失败后的处理策略
- 
- - AlibcNativeFailModeJumpH5: 当拉起手淘/天猫失败, 则在 webview 中跳转对应 H5 页面; 默认选项
- - AlibcNativeFailModeJumpDownloadPage: 当拉起手淘/天猫失败, 则跳转对应 App 下载页面
- - AlibcNativeFailModeJumpBrowser: 当拉起手淘/天猫失败, 则在浏览器中跳转对应 H5 页面
- - AlibcNativeFailModeNone: 当拉起手淘/天猫失败, 不做额外操作
- */
-typedef NS_ENUM(NSInteger, AlibcNativeFailMode) {
-    AlibcNativeFailModeJumpH5 = 0,
-    AlibcNativeFailModeJumpDownloadPage = 1,
-    AlibcNativeFailModeJumpBrowser = 2,
-    AlibcNativeFailModeNone = 3,
-};
-
 #endif
-
-#ifndef ALiApplinkBridge_h
-#define ALiApplinkBridge_h
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -86,28 +72,30 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param url URL String
  @param params 参数
+ @param degradeUrl H5降级跳转url
  @param failMode 跳转失败处理策略
  @param taoKeParams 淘客参数
  @return 跳转错误对象
  */
 + (nullable AlibcError *)tryJumpToURL:(NSString *)url
+                           degradeUrl:(NSString *)degradeUrl
+                              context:(AlibcURLBusNativeContext *)context
                                params:(nullable NSDictionary *)params
                              failMode:(AlibcNativeFailMode)failMode
                           taokeParams:(nullable AlibcTradeTaokeParams *)taoKeParams;
 
 
-/**
- * 处理 URL 跳转
-
- @param url url
- @param sourceApplication sourceApplication
- @param options options
- @return handle or not
- */
-+ (BOOL)handleOpenURL:(NSURL *)url
-    sourceApplication:(nullable NSString *)sourceApplication
-              options:(nullable NSDictionary<NSString *, id> *)options;
-
+///**
+// * 处理 URL 跳转
+//
+// @param url url
+// @param sourceApplication sourceApplication
+// @param options options
+// @return handle or not
+// */
+//+ (BOOL)handleOpenURL:(NSURL *)url
+//    sourceApplication:(nullable NSString *)sourceApplication
+//              options:(nullable NSDictionary<NSString *, id> *)options;
 
 /**
  * 在天猫未安装导致天猫打开失败时, 尝试打开手淘

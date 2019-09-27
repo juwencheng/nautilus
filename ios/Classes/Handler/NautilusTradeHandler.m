@@ -138,7 +138,8 @@
     self.webVC = [[AuthWebVC alloc] initWithUrlString:pageUrl];
     self.webVC.result = result;
     dispatch_async(dispatch_get_main_queue(), ^{
-        openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:self.webVC webView:self.webVC.webView page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+        openResultCode = [[AlibcTradeSDK sharedInstance].tradeService openByBizCode:@"detail" page:page webView:self.webVC.webView parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+//        openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:self.webVC webView:self.webVC.webView page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
         if (openResultCode == 1) {
             [rootViewController presentViewController:[[UINavigationController alloc] initWithRootViewController:self.webVC] animated:YES completion:nil];
         }
@@ -240,8 +241,8 @@
         extParams = nil;
     }
 
-    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:rootViewController page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
-
+//    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:rootViewController page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService openByBizCode:@"detail" page:page webView:self.webVC.webView parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
 
 }
 
@@ -274,9 +275,6 @@
         case 1:
             openType = AlibcOpenTypeNative;
             break;
-        case 2:
-            openType = AlibcOpenTypeH5;
-            break;
 
         default:
             break;
@@ -294,9 +292,6 @@
             openType = AlibcNativeFailModeJumpDownloadPage;
             break;
         case 2:
-            openType = AlibcNativeFailModeJumpBrowser;
-            break;
-        case 3:
             openType = AlibcNativeFailModeNone;
             break;
         default:

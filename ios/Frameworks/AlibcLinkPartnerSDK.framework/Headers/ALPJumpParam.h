@@ -21,6 +21,11 @@ FOUNDATION_EXTERN NSString *const ALPTmallLinkKey;        //打开天猫
 @property (nonatomic, copy) NSString *linkKey;
 
 /**
+ *  跳转是未安装跳转APP，对应的降级地址
+ */
+@property (nonatomic, copy) NSString *degradeToH5Url;
+
+/**
  *  返回的跳转地址(可选)
  */
 @property (nonatomic, copy) NSString *backURL;
@@ -29,11 +34,6 @@ FOUNDATION_EXTERN NSString *const ALPTmallLinkKey;        //打开天猫
  *  跳出模块的业务标识
  */
 @property (nonatomic, copy) NSString *visa;
-
-/**
- *  跳转是未安装跳转APP，对应的降级地址
- */
-@property (nonatomic, copy) NSString *degradeToH5Url;
 
 /**
  *  模块，h5，detail，shop，auth;不需要改动
@@ -54,12 +54,5 @@ FOUNDATION_EXTERN NSString *const ALPTmallLinkKey;        //打开天猫
  *  额外参数(可选)
  */
 @property (nonatomic, strong) NSMutableDictionary *extraParam;
-
-
-
-
-
-
-
 
 @end

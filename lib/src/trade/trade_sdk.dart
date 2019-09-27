@@ -46,8 +46,8 @@ class TradeResult {
       this.payFailedOrders});
 }
 
-enum OpenType { AUTO, NATIVE, H5 }
+enum OpenType { AUTO, NATIVE }
 
-enum OpenNativeFailedMode { JUMP_H5, JUMP_DOWNLOAD, JUMP_BROWSER, NONE }
+enum OpenNativeFailedMode { JUMP_H5, JUMP_DOWNLOAD, NONE }
 
 enum TradeResultType { PaySuccess, AddCard }

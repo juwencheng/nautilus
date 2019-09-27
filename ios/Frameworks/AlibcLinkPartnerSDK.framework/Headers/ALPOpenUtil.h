@@ -9,6 +9,8 @@
 #import "ALPJumpParam.h"
 #import <UIKit/UIKit.h>
 
+__attribute__((deprecated("ALPOpenUtil已过期, 不再使用")))
+
 @interface ALPOpenUtil : NSObject
 
 /**
@@ -17,19 +19,8 @@
  */
 + (NSString *)pareseToJSONWithDictionary:(NSDictionary *)dictionary;
 
-/**
- *  把json转为dictionary
- *
- */
-+ (NSDictionary *)parseToDictionaryWithJSON:(NSString *)json;
-
 
 + (NSString *)encodeALLWithURL:(NSString *)url;
-
-/**
- *  query转Dictionary
- */
-+ (NSDictionary*)queryDictionaryFromURL:(NSString*)urlString;
 
 /**
  *  Dictionary转query
@@ -44,18 +35,6 @@
  *  md5加密算法,传入待加密string
  */
 + (NSString *)encodeToMD5:(NSString *)string;
-
-/**
- * 获取ttid
- */
-+ (NSString *)getTtid;
-
-/**
- *  当前viewController
- *
- *  @return 当前viewController
- */
-+ (UIViewController *)currentVC;
 
 /**
  * urldecode

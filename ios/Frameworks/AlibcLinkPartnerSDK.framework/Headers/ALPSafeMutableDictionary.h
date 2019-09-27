@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+__attribute__((deprecated("ALPOpenUtil已过期, 不再使用")))
+
 @interface ALPSafeMutableDictionary : NSMutableDictionary
-
-
-
 @end
