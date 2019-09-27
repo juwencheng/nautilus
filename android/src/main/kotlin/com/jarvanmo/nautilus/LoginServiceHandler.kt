@@ -17,7 +17,7 @@ internal class LoginServiceHandler(private val registrar: PluginRegistry.Registr
 
     fun initLogin( result: MethodChannel.Result){
        AlibcLogin.getInstance().init(object :AlibcLoginCallback{
-            override fun onSuccess(code: Int) {
+            override fun onSuccess(code: Int, msg1: String, msg2: String) {
                 result.success(mapOf(
                         keyPlatform to keyAndroid,
                         keyResult to true,
@@ -46,7 +46,7 @@ internal class LoginServiceHandler(private val registrar: PluginRegistry.Registr
 
         val alibcLogin = AlibcLogin.getInstance()
         alibcLogin.showLogin(object : AlibcLoginCallback {
-            override fun onSuccess(p0: Int) {
+            override fun onSuccess(p0: Int, msg1: String, msg2: String) {
                 val user = mapOf(
                         "avatarUrl" to alibcLogin.session.avatarUrl,
                         "nick" to alibcLogin.session.nick,
@@ -111,7 +111,7 @@ internal class LoginServiceHandler(private val registrar: PluginRegistry.Registr
         }
         val alibcLogin = AlibcLogin.getInstance()
         alibcLogin.logout(object : AlibcLoginCallback {
-            override fun onSuccess(i: Int) {
+            override fun onSuccess(i: Int, msg1: String, msg2: String) {
                 result.success(mapOf(
                         keyPlatform to keyAndroid,
                         keyResult to true

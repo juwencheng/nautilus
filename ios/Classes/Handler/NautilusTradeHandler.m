@@ -44,14 +44,12 @@
 
 - (void)openUrl:(FlutterMethodCall *)call result:(FlutterResult)result {
     NSString *pageUrl = call.arguments[@"pageUrl"];
-    id <AlibcTradePage> page = [AlibcTradePageFactory page:pageUrl];
-    [self OpenByPage:page call:call result:result];
+    [self openByUrl:pageUrl call:call result:result];
 }
 
 - (void)openAuthUrl:(FlutterMethodCall *)call result:(FlutterResult)result {
     self.result = result;
     NSString *pageUrl = call.arguments[@"pageUrl"];
-    id <AlibcTradePage> page = [AlibcTradePageFactory page:pageUrl];
     UIViewController *rootViewController =
     [UIApplication sharedApplication].delegate.window.rootViewController;
     
@@ -138,7 +136,7 @@
     self.webVC = [[AuthWebVC alloc] initWithUrlString:pageUrl];
     self.webVC.result = result;
     dispatch_async(dispatch_get_main_queue(), ^{
-        openResultCode = [[AlibcTradeSDK sharedInstance].tradeService openByBizCode:@"detail" page:page webView:self.webVC.webView parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+        openResultCode = [[AlibcTradeSDK sharedInstance].tradeService openByUrl:pageUrl identity:@"trade" webView:self.webVC.webView parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
 //        openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:self.webVC webView:self.webVC.webView page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
         if (openResultCode == 1) {
             [rootViewController presentViewController:[[UINavigationController alloc] initWithRootViewController:self.webVC] animated:YES completion:nil];
@@ -242,7 +240,99 @@
     }
 
 //    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:rootViewController page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
-    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService openByBizCode:@"detail" page:page webView:self.webVC.webView parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+    [[AlibcTradeSDK sharedInstance].tradeService openByUrl:@"" identity:@"" webView:nil parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+//    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService openByBizCode:@"detail" page:page webView:self.webVC.webView parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+
+}
+
+- (void)openByUrl:(NSString *)url call:(FlutterMethodCall *)call result:(FlutterResult)result {
+    UIViewController *rootViewController =
+            [UIApplication sharedApplication].delegate.window.rootViewController;
+
+    NSString *backUrl = call.arguments[@"backUrl"];
+    BOOL needPush = [call.arguments[@"needPush"] boolValue];
+    NSNumber *type = call.arguments[@"openType"];
+    NSNumber *nativeFailedMode = call.arguments[@"openNativeFailedMode"];
+
+    AlibcTradeShowParams *showParam = [[AlibcTradeShowParams alloc] init];
+    showParam.openType = [self intToAlibcOpenType:[type intValue]];
+//    showParam.backUrl=@"tbopen23082328:https://h5.m.taobao.com";
+    showParam.backUrl = backUrl;
+    showParam.isNeedPush = needPush;
+    showParam.nativeFailMode = [self intToNativeFailMode:[nativeFailedMode intValue]];
+
+//    showParam.linkKey = @"tmall_scheme";//暂时拉起天猫
+    showParam.linkKey = call.arguments[@"schemeType"];
+//    showParam.linkKey = @"dingding_scheme";//暂时拉起天猫
+
+
+    NSInteger openResultCode = -1;
+
+    AlibcTradeProcessSuccessCallback _onTradeSuccess = ^(AlibcTradeResult *tradeProcessResult) {
+
+        if (tradeProcessResult.result == AlibcTradeResultTypePaySuccess) {
+            result(@{
+                    @"openResultCode": @(openResultCode),
+                    nautilusKeyPlatform: nautilusKeyIOS,
+                    nautilusKeyResult: @YES,
+                    @"tradeResultType": @0,
+                    @"paySuccessOrders": [tradeProcessResult payResult].paySuccessOrders,
+                    @"payFailedOrders": [tradeProcessResult payResult].payFailedOrders
+            });
+        } else if (tradeProcessResult.result == AlibcTradeResultTypeAddCard) {
+
+            result(@{
+                    @"openResultCode": @(openResultCode),
+                    nautilusKeyPlatform: nautilusKeyIOS,
+                    nautilusKeyResult: @YES,
+                    @"tradeResultType": @1,
+            });
+        } else{
+            result(@{
+                    @"openResultCode": @(openResultCode),
+                    nautilusKeyPlatform: nautilusKeyIOS,
+                    nautilusKeyResult: @YES,
+                    @"tradeResultType": @-1,
+            });
+        }
+
+    };
+
+
+    AlibcTradeProcessFailedCallback _onTradeFailure = ^(NSError *error) {
+//        退出交易流程
+
+        NSDictionary *infor = [error userInfo];
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:infor options:NSJSONWritingPrettyPrinted error:&error];
+
+        NSString *jsonString = @"";
+
+        if (jsonData) {
+            jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+        }
+
+        result(@{
+                @"openResultCode": @(openResultCode),
+                nautilusKeyPlatform: nautilusKeyIOS,
+                nautilusKeyResult: @NO,
+                nautilusKeyErrorCode: @(error.code),
+                nautilusKeyErrorMessage: jsonString,
+        });
+
+    };
+
+    AlibcTradeTaokeParams *taoKeParams = nil;
+    taoKeParams = [self buildTaoKeParam:call];
+
+    NSDictionary *extParams = call.arguments[@"extParams"];
+    if ([extParams isKindOfClass:[NSNull class]]) {
+        extParams = nil;
+    }
+
+//    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService show:rootViewController page:page showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+    [[AlibcTradeSDK sharedInstance].tradeService openByUrl:url identity:@"trade" webView:nil parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
+//    openResultCode = [[AlibcTradeSDK sharedInstance].tradeService openByBizCode:@"detail" page:page webView:self.webVC.webView parentController:rootViewController showParams:showParam taoKeParams:taoKeParams trackParam:extParams tradeProcessSuccessCallback:_onTradeSuccess tradeProcessFailedCallback:_onTradeFailure];
 
 }
 

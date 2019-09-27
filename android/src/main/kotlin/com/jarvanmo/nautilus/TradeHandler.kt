@@ -79,8 +79,8 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
     }
 
     fun openUrl(call: MethodCall, result: MethodChannel.Result){
-        val pageUrl = call.argument<String?>("pageUrl")
-        openByPage(AlibcPage(pageUrl), call, result)
+        val pageUrl = call.argument<String?>("pageUrl") as String
+        openByUrl(pageUrl, call, result)
     }
     fun openMyCart(call: MethodCall, result: MethodChannel.Result) {
         openByPage(AlibcMyCartsPage(), call, result)
@@ -143,19 +143,77 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
                 ))
             }
         }
-        openResultCode = AlibcTrade.show(registry.activity(), page, buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback)
+        AlibcTrade.openByBizCode(registry.activity(),page,null,null,null,"detail",buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
+    }
+    private fun openByUrl(url: String, call: MethodCall, result: MethodChannel.Result) {
+        var openResultCode = -1
+        val tradeCallback = object : AlibcTradeCallback {
+            override fun onTradeSuccess(tradeResult: AlibcTradeResult?) {
+                if (tradeResult == null) {
+                    result.success(mapOf(
+                            "openResultCode" to openResultCode,
+                            keyPlatform to keyAndroid,
+                            keyResult to false,
+                            keyErrorCode to -99999,
+                            keyErrorMessage to "tradeResult is null"
+                    ))
+                    return
+                }
+                when {
+                    tradeResult.resultType == AlibcResultType.TYPEPAY -> {
+                        result.success(mapOf(
+                                "openResultCode" to openResultCode,
+                                keyPlatform to keyAndroid,
+                                keyResult to true,
+                                "tradeResultType" to 0,
+                                "paySuccessOrders" to tradeResult.payResult.payFailedOrders,
+                                "payFailedOrders" to tradeResult.payResult.payFailedOrders
+                        ))
+                    }
+                    tradeResult.resultType == AlibcResultType.TYPECART -> {
+                        result.success(mapOf(
+                                "openResultCode" to openResultCode,
+                                keyPlatform to keyAndroid,
+                                keyResult to true,
+                                "tradeResultType" to 1
+                        ))
+                    }
+                    else -> {
+                        result.success(mapOf(
+                                "openResultCode" to openResultCode,
+                                keyPlatform to keyAndroid,
+                                keyResult to true,
+                                "tradeResultType" to -1
+                        ))
+                    }
+                }
+
+            }
+
+            override fun onFailure(code: Int, message: String?) {
+                result.success(mapOf(
+                        "openResultCode" to openResultCode,
+                        keyPlatform to keyAndroid,
+                        keyResult to false,
+                        keyErrorCode to code,
+                        keyErrorMessage to message
+                ))
+            }
+        }
+        AlibcTrade.openByUrl(registry.activity(), "", url,null,null,null, buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
+//        openResultCode = AlibcTrade.show(registry.activity(), page, buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback)
 
     }
 
 
     private fun buildTaoKeParams(call: MethodCall): AlibcTaokeParams? {
         var taoKe: AlibcTaokeParams? = null
-        val taoKeParams = call.argument<Map<String, Any?>?>("taoKeParams");
+        val taoKeParams = call.argument<Map<String, Any?>?>("taoKeParams")
         if (taoKeParams != null) {
-            taoKe = AlibcTaokeParams()
-            taoKe.pid = taoKeParams["taoKeParamsPid"]?.toString()
-            taoKe.subPid = taoKeParams["taoKeParamsSubPid"]?.toString()
-            taoKe.unionId = taoKeParams["taoKeParamsUnionId"]?.toString()
+            taoKe = AlibcTaokeParams(taoKeParams["taoKeParamsPid"]?.toString(), taoKeParams["taoKeParamsUnionId"]?.toString(),taoKeParams["taoKeParamsSubPid"]?.toString() )
+//            taoKe.pid = taoKeParams["taoKeParamsPid"]?.toString()
+//            taoKe.subPid = taoKeParams["taoKeParamsSubPid"]?.toString()
+//            taoKe.unionId = taoKeParams["taoKeParamsUnionId"]?.toString()
             taoKe.adzoneid = taoKeParams["taoKeParamsAdzoneId"]?.toString()
             taoKe.extraParams = if (taoKeParams["taoKeParamsExtParams"] != null) {
                 taoKeParams["taoKeParamsExtParams"] as HashMap<String, String>
@@ -169,7 +227,7 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
 
     private fun buildShowParams(call: MethodCall): AlibcShowParams {
         val openType = call.argument("openType") ?: 0
-        val alibcShowParams = AlibcShowParams(intToOpenType(openType), false)
+        val alibcShowParams = AlibcShowParams(intToOpenType(openType))
         alibcShowParams.backUrl = call.argument<String?>("backUrl")
         alibcShowParams.clientType = call.argument("schemeType") ?: "tmall_scheme"
         val openFailedMode = call.argument("openNativeFailedMode") ?: 0
@@ -179,7 +237,6 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
 
     private fun intToOpenType(type: Int): OpenType = when (type) {
         1 -> OpenType.Native
-        2 -> OpenType.H5
         else -> OpenType.Auto
     }
 
