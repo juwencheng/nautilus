@@ -200,7 +200,9 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
                 ))
             }
         }
-        AlibcTrade.openByUrl(registry.activity(), "", url,null,null,null, buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
+        // TODO: 如果下面代码还是不行，就只能实现webViewClient的中拦截链接跳转的代码了
+        // 代码可参考蒲说工程 AuthWebViewActivity.java 第77行
+        AlibcTrade.openByUrl(registry.activity(), "", url,null,WebViewClient(),WebChromeClient(), buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
 //        openResultCode = AlibcTrade.show(registry.activity(), page, buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback)
 
     }
