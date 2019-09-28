@@ -1,11 +1,9 @@
 package com.jarvanmo.nautilus
 
-import android.content.Intent
-import android.util.Log
+
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import com.ali.auth.third.core.MemberSDK
 import com.alibaba.baichuan.android.trade.AlibcTrade
 import com.alibaba.baichuan.android.trade.AlibcTradeSDK
@@ -78,16 +76,116 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
         openByPage(AlibcDetailPage(itemID), call, result)
     }
 
-    fun openUrl(call: MethodCall, result: MethodChannel.Result){
+    fun openUrl(call: MethodCall, result: MethodChannel.Result) {
         val pageUrl = call.argument<String?>("pageUrl") as String
         openByUrl(pageUrl, call, result)
     }
+
+    fun openAuthUrl(call: MethodCall, result: MethodChannel.Result) {
+        val pageUrl = call.argument<String?>("pageUrl") as String
+
+        var openResultCode = -1
+        val tradeCallback = object : AlibcTradeCallback {
+            override fun onTradeSuccess(tradeResult: AlibcTradeResult?) {
+                if (tradeResult == null) {
+                    result.success(mapOf(
+                            "openResultCode" to openResultCode,
+                            keyPlatform to keyAndroid,
+                            keyResult to false,
+                            keyErrorCode to -99999,
+                            keyErrorMessage to "tradeResult is null"
+                    ))
+                    return
+                }
+                when {
+                    tradeResult.resultType == AlibcResultType.TYPEPAY -> {
+                        result.success(mapOf(
+                                "openResultCode" to openResultCode,
+                                keyPlatform to keyAndroid,
+                                keyResult to true,
+                                "tradeResultType" to 0,
+                                "paySuccessOrders" to tradeResult.payResult.payFailedOrders,
+                                "payFailedOrders" to tradeResult.payResult.payFailedOrders
+                        ))
+                    }
+                    tradeResult.resultType == AlibcResultType.TYPECART -> {
+                        result.success(mapOf(
+                                "openResultCode" to openResultCode,
+                                keyPlatform to keyAndroid,
+                                keyResult to true,
+                                "tradeResultType" to 1
+                        ))
+                    }
+                    else -> {
+                        result.success(mapOf(
+                                "openResultCode" to openResultCode,
+                                keyPlatform to keyAndroid,
+                                keyResult to true,
+                                "tradeResultType" to -1
+                        ))
+                    }
+                }
+
+            }
+
+            override fun onFailure(code: Int, message: String?) {
+                result.success(mapOf(
+                        "openResultCode" to openResultCode,
+                        keyPlatform to keyAndroid,
+                        keyResult to false,
+                        keyErrorCode to code,
+                        keyErrorMessage to message
+                ))
+            }
+        }
+
+        // TODO: 如果下面代码还是不行，就只能实现webViewClient的中拦截链接跳转的代码了
+        // 代码可参考蒲说工程 AuthWebViewActivity.java 第77行
+        AlibcTrade.openByUrl(registry.activity(), "", pageUrl, null, object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                if (url.indexOf("http://app.pslife.com.cn/api/tbk/specialAuthv1") == 0) {
+                    result.success(mapOf(
+                            "data" to url,
+                            "result" to 1
+                    ))
+//                    val intent = getIntent()
+//                    val result = HashMap<String, Any>()
+//                    result.put("data", url)
+//                    result.put("result", 1)
+//                    intent.putExtra("result", result as Serializable)
+//                    setResult(RESULT_OK, intent)
+//                    finish()
+                    return true
+                } else if (url.indexOf("http://app.pslife.com.cn/api/tbk/relationAuthv1") == 0) {
+                    result.success(mapOf(
+                            "data" to url,
+                            "result" to 1
+                    ))
+//                    val intent = getIntent()
+//                    val result = HashMap<String, Any>()
+//                    result.put("data", url)
+//                    result.put("result", 1)
+//                    intent.putExtra("result", result as Serializable)
+//                    setResult(RESULT_OK, intent)
+//                    finish()
+                    return true
+                }
+                view.loadUrl(url)
+                return false
+            }
+        }, WebChromeClient(), buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback)
+//        openResultCode = AlibcTrade.show(registry.activity(), page, buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback)
+
+    }
+
     fun openMyCart(call: MethodCall, result: MethodChannel.Result) {
         openByPage(AlibcMyCartsPage(), call, result)
     }
+
     fun openOrderList(call: MethodCall, result: MethodChannel.Result) {
-        openByPage(AlibcMyOrdersPage(0,true), call, result)
+        openByPage(AlibcMyOrdersPage(0, true), call, result)
     }
+
     private fun openByPage(page: AlibcBasePage, call: MethodCall, result: MethodChannel.Result) {
         var openResultCode = -1
         val tradeCallback = object : AlibcTradeCallback {
@@ -143,8 +241,9 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
                 ))
             }
         }
-        AlibcTrade.openByBizCode(registry.activity(),page,null,null,null,"detail",buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
+        AlibcTrade.openByBizCode(registry.activity(), page, null, null, null, "detail", buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
     }
+
     private fun openByUrl(url: String, call: MethodCall, result: MethodChannel.Result) {
         var openResultCode = -1
         val tradeCallback = object : AlibcTradeCallback {
@@ -200,9 +299,11 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
                 ))
             }
         }
+
         // TODO: 如果下面代码还是不行，就只能实现webViewClient的中拦截链接跳转的代码了
         // 代码可参考蒲说工程 AuthWebViewActivity.java 第77行
-        AlibcTrade.openByUrl(registry.activity(), "", url,null,WebViewClient(),WebChromeClient(), buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
+//        openByUrl(registry.activity(), "", url, null, WebViewClient(), WebChromeClient(), buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
+        AlibcTrade.openByUrl(registry.activity(), "", url, null, WebViewClient(), WebChromeClient(), buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback);
 //        openResultCode = AlibcTrade.show(registry.activity(), page, buildShowParams(call), buildTaoKeParams(call), call.argument<Map<String, String>?>("extParams"), tradeCallback)
 
     }
@@ -212,7 +313,7 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
         var taoKe: AlibcTaokeParams? = null
         val taoKeParams = call.argument<Map<String, Any?>?>("taoKeParams")
         if (taoKeParams != null) {
-            taoKe = AlibcTaokeParams(taoKeParams["taoKeParamsPid"]?.toString(), taoKeParams["taoKeParamsUnionId"]?.toString(),taoKeParams["taoKeParamsSubPid"]?.toString() )
+            taoKe = AlibcTaokeParams(taoKeParams["taoKeParamsPid"]?.toString(), taoKeParams["taoKeParamsUnionId"]?.toString(), taoKeParams["taoKeParamsSubPid"]?.toString())
 //            taoKe.pid = taoKeParams["taoKeParamsPid"]?.toString()
 //            taoKe.subPid = taoKeParams["taoKeParamsSubPid"]?.toString()
 //            taoKe.unionId = taoKeParams["taoKeParamsUnionId"]?.toString()
