@@ -1,6 +1,7 @@
 package com.jarvanmo.nautilus
 
 
+import android.util.Log
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -33,7 +34,8 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
         if (!version.isNullOrBlank()) {
             AlibcTradeSDK.setISVVersion(version)
         }
-        val debuggable = call.argument("debuggable") ?: false
+//        val debuggable = call.argument("debuggable") ?: false
+        val debuggable = true
         if (debuggable) {
             AlibcTradeCommon.turnOnDebug()
             AlibcTradeBiz.turnOnDebug()
@@ -43,10 +45,11 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
             AlibcTradeBiz.turnOffDebug()
             MemberSDK.turnOnDebug()
         }
-
+        Log.i("蒲说", "调用异步初始化")
         //电商SDK初始化
         AlibcTradeSDK.asyncInit(registry.activity().application, object : AlibcTradeInitCallback {
             override fun onSuccess() {
+                Log.i("蒲说", "异步初始化成功")
                 result.success(mapOf(
                         keyPlatform to keyAndroid,
                         keyResult to true
@@ -55,6 +58,7 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
             }
 
             override fun onFailure(code: Int, msg: String) {
+                Log.i("蒲说", "异步初始化失败 $code $msg")
                 result.success(mapOf(
                         keyPlatform to keyAndroid,
                         keyResult to false,

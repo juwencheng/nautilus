@@ -1,6 +1,7 @@
 package com.jarvanmo.nautilus
 
 
+import android.util.Log
 import com.ali.auth.third.ui.context.CallbackContext
 import com.alibaba.baichuan.trade.biz.login.AlibcLogin
 import com.alibaba.baichuan.trade.biz.login.AlibcLoginCallback
@@ -16,8 +17,10 @@ import io.flutter.plugin.common.PluginRegistry
 internal class LoginServiceHandler(private val registrar: PluginRegistry.Registrar) {
 
     fun initLogin( result: MethodChannel.Result){
+        Log.i("蒲说", "初始化登录")
        AlibcLogin.getInstance().init(object :AlibcLoginCallback{
             override fun onSuccess(code: Int, msg1: String, msg2: String) {
+                Log.i("蒲说", "初始化登录成功 " + code + "code")
                 result.success(mapOf(
                         keyPlatform to keyAndroid,
                         keyResult to true,
@@ -28,6 +31,7 @@ internal class LoginServiceHandler(private val registrar: PluginRegistry.Registr
 
 
             override fun onFailure(p0: Int, p1: String?) {
+                Log.i("蒲说", "初始化登录失败 $p0 msg $p1")
                 result.success(mapOf(
                         keyPlatform to keyAndroid,
                         keyResult to false,
@@ -45,8 +49,10 @@ internal class LoginServiceHandler(private val registrar: PluginRegistry.Registr
         }
 
         val alibcLogin = AlibcLogin.getInstance()
+        Log.i("蒲说", "开始登录 ")
         alibcLogin.showLogin(object : AlibcLoginCallback {
             override fun onSuccess(p0: Int, msg1: String, msg2: String) {
+                Log.i("蒲说", "登录成功 $p0 msg $msg1 msg2 $msg2 ")
                 val user = mapOf(
                         "avatarUrl" to alibcLogin.session.avatarUrl,
                         "nick" to alibcLogin.session.nick,
@@ -66,6 +72,7 @@ internal class LoginServiceHandler(private val registrar: PluginRegistry.Registr
 
 
             override fun onFailure(errorCode: Int, errorMessage: String?) {
+                Log.i("蒲说", "登录失败 $errorCode $errorMessage")
                 result.success(mapOf(
                         keyPlatform to keyAndroid,
                         keyResult to false,

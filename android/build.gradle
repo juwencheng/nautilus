@@ -59,13 +59,15 @@ dependencies {
     implementation 'com.ali.auth.sdk:alibabauth_ext:2.0.0.6@aar'
 
     //【可选】仅供特殊合作伙伴使用
-    implementation 'com.ali.auth.sdk:alibabauth_accountlink:1.1.4@jar'
+//    implementation 'com.ali.auth.sdk:alibabauth_accountlink:1.1.4@jar'
 
 
     //安全基础
     implementation 'com.taobao.android:securityguardaar3:5.4.171@aar'
     //【可选】安全高级，如使用了发放红包、优惠券高级功能，则必须引入
     implementation 'com.taobao.android:securitybodyaar3:5.4.99@aar'
+    implementation 'com.taobao.android:avmpaar3:5.4.36@aar'
+    implementation 'com.taobao.android:sgmiddletieraar3:5.4.9@aar'
 
     //Mtop网关
     implementation 'com.taobao.android:mtopsdk_allinone_open:3.1.2.5@jar'
@@ -79,10 +81,11 @@ dependencies {
     implementation 'com.alibaba.mtl:app-monitor-sdk:2.6.4.5_for_bc'
 
     //联盟SDK
-    implementation 'com.alimama.tunion.sdk:tuniontradesdk:0.3.2@aar'
+//    implementation 'com.alimama.tunion.sdk:tuniontradesdk:0.3.2@aar'
 
     //电商SDK
     implementation 'com.alibaba.sdk.android:AlibcTradeCommon:4.0.0.2@aar'
     implementation 'com.alibaba.sdk.android:AlibcTradeBiz:4.0.0.2@aar'
     implementation 'com.alibaba.sdk.android:nb_trade:4.0.0.2@aar'
+    implementation 'com.alibaba:fastjson:1.2.41'
 }
