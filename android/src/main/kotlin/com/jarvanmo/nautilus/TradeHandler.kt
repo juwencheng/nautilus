@@ -87,7 +87,7 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
 
     fun openAuthUrl(call: MethodCall, result: MethodChannel.Result) {
         val pageUrl = call.argument<String?>("pageUrl") as String
-
+        Log.i("蒲说", "openAuthUrl 拦截地址  $pageUrl ")
         var openResultCode = -1
         val tradeCallback = object : AlibcTradeCallback {
             override fun onTradeSuccess(tradeResult: AlibcTradeResult?) {
@@ -147,6 +147,7 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
         // 代码可参考蒲说工程 AuthWebViewActivity.java 第77行
         AlibcTrade.openByUrl(registry.activity(), "", pageUrl, null, object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                Log.i("蒲说", "openAuthUrl -150- 拦截地址  $url ")
                 if (url.indexOf("http://app.pslife.com.cn/api/tbk/specialAuthv1") == 0) {
                     result.success(mapOf(
                             "data" to url,
@@ -249,6 +250,7 @@ internal class TradeHandler(private val registry: PluginRegistry.Registrar) {
     }
 
     private fun openByUrl(url: String, call: MethodCall, result: MethodChannel.Result) {
+        Log.i("蒲说", "openByUrl -253-    拦截地址  $url ")
         var openResultCode = -1
         val tradeCallback = object : AlibcTradeCallback {
             override fun onTradeSuccess(tradeResult: AlibcTradeResult?) {
